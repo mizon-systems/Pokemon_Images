@@ -1,0 +1,46 @@
+import os
+import requests
+
+folder = "pokemon_images"
+os.makedirs(folder, exist_ok=True)
+
+pokemon = [
+    (1, "Pikachu"), (6, "Charizard"), (1, "Bulbasaur"), (7, "Squirtle"),
+    (4, "Charmander"), (133, "Eevee"), (39, "Jigglypuff"), (52, "Meowth"),
+    (143, "Snorlax"), (150, "Mewtwo"), (94, "Gengar"), (54, "Psyduck"),
+    (37, "Vulpix"), (149, "Dragonite"), (131, "Lapras"), (448, "Lucario"),
+    (658, "Greninja"), (130, "Gyarados"), (59, "Arcanine"), (132, "Ditto"),
+    (778, "Mimikyu"), (393, "Piplup"), (54, "Psyduck"), (175, "Togepi"),
+    (212, "Scizor"), (197, "Umbreon"), (700, "Sylveon"), (722, "Rowlet"),
+    (445, "Garchomp"), (384, "Rayquaza"), (155, "Cyndaquil"), (258, "Mudkip"),
+    (152, "Chikorita"), (77, "Ponyta"), (93, "Haunter"), (95, "Onix"),
+    (359, "Absol"), (571, "Zoroark"), (392, "Infernape"), (724, "Decidueye"),
+    (248, "Tyranitar"), (376, "Metagross"), (350, "Milotic"), (282, "Gardevoir"),
+    (491, "Darkrai"), (448, "Lucario"), (251, "Celebi"), (144, "Articuno"),
+    (145, "Zapdos"), (146, "Moltres")
+]
+
+# Duplicate names ko unique banane ke liye
+seen = {}
+final_list = []
+for poke_id, name in pokemon:
+    key = name.lower()
+    seen[key] = seen.get(key, 0) + 1
+    final_name = name if seen[key] == 1 else f"{name}_{seen[key]}"
+    final_list.append((poke_id, final_name))
+
+for i, (poke_id, name) in enumerate(final_list, start=1):
+    url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{poke_id}.png"
+    filename = f"{i:02d}_{name}.png"
+    filepath = os.path.join(folder, filename)
+
+    try:
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+        print(f"Downloaded: {filename}")
+    except Exception as e:
+        print(f"Failed: {filename} - {e}")
+
+print("\nDone! Images are in the 'pokemon_images' folder.")
